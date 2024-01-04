@@ -24,6 +24,9 @@ Available variables:
 | LANGCHAIN_TRACING_V2   | false                              | OPTIONAL - Enable Langchain tracing v2                                  |
 | LANGCHAIN_PROJECT      |                                    | OPTIONAL - Langchain project name                                       |
 | LANGCHAIN_API_KEY      |                                    | OPTIONAL - Langchain API key                                            |
+| JIRA_INSTANCE_URL      |                                    | OPTIONAL - URL for Jira                                                 |
+| JIRA_USERNAME          |                                    | OPTIONAL - Jira user name                                               |
+| JIRA_API_TOKEN         |                                    | OPTIONAL - Jira API Token                                               |
 
 ## LLM Configuration
 MacOS and Linux users can use any LLM that's available via Ollama. Check the "tags" section under the model page you want to use on https://ollama.ai/library and write the tag for the value of the environment variable `LLM=` in the `.env` file.
@@ -79,7 +82,8 @@ Here's what's in this repo:
 | PDF Reader | `pdf_bot.py` | `pdf_bot` | http://localhost:8503 | Read local PDF and ask it questions. Fullstack Python application. |
 | Standalone Bot API | `api.py` | `api` | http://localhost:8504 | Standalone HTTP API streaming (SSE) + non-streaming endpoints Python. |
 | Standalone Bot UI | `front-end/` | `front-end` | http://localhost:8505 | Standalone client that uses the Standalone Bot API to interact with the model. JavaScript (Svelte) front-end. |
-
+| Jira Issues Loader UI | `jira-loader.py` | `jira-loader` | http://localhost:8506 | Load Jira Project issues into vector store. Fullstack Python application.|
+| Jira Bot | `jira-bot.py` | `jira-bot` | http://localhost:8507 | Interactive with mode with loaded Jira Project issues. Fullstack Python application.|
 The database can be explored at http://localhost:7474.
 
 ## App 1 - Support Agent Bot
@@ -152,3 +156,19 @@ This application has the same features as App 1, but is built separate from
 the back-end code using modern best practices (Vite, Svelte, Tailwind).  
 The auto-reload on changes are instant using the Docker watch `sync` config.  
 ![](.github/media/app5-ui.png)
+
+## App 6 Jira Project Issues loader
+UI: http://localhost:8506
+
+This application has the same features as App 2, load information from Jira to Neo4j
+
+|  |  |
+|---|---|
+| ![](.github/media/app6-ui.png) | ![](.github/media/app6-model.png) |
+
+## App 7 Interactive with loaded Jira Project Issues
+UI: http://localhost:8507
+
+This application similar as App 3, you can ask question regarding to App 6 loaded issues
+
+![](.github/media/app7-ui.png)
