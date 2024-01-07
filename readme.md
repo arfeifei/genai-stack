@@ -82,8 +82,9 @@ Here's what's in this repo:
 | PDF Reader | `pdf_bot.py` | `pdf_bot` | http://localhost:8503 | Read local PDF and ask it questions. Fullstack Python application. |
 | Standalone Bot API | `api.py` | `api` | http://localhost:8504 | Standalone HTTP API streaming (SSE) + non-streaming endpoints Python. |
 | Standalone Bot UI | `front-end/` | `front-end` | http://localhost:8505 | Standalone client that uses the Standalone Bot API to interact with the model. JavaScript (Svelte) front-end. |
-| Jira Issues Loader UI | `jira-loader.py` | `jira-loader` | http://localhost:8506 | Load Jira Project issues into vector store. Fullstack Python application.|
-| Jira Bot | `jira-bot.py` | `jira-bot` | http://localhost:8507 | Interactive with mode with loaded Jira Project issues. Fullstack Python application.|
+| Jira Issues Loader UI | `jira_loader.py` | `jira_loader` | http://localhost:8506 | Load Jira Project issues into vector store. Fullstack Python application.|
+| Jira Bot | `jira_bot.py` | `jira_bot` | http://localhost:8507 | Interactive with mode with loaded Jira Project issues. Fullstack Python application.|
+| Confluence Bot | `confluence_bot.py` | `confluence_bot` | http://localhost:8508 | Interactive with mode with loaded Confluence Space Pages. Fullstack Python application.|
 The database can be explored at http://localhost:7474.
 
 ## App 1 - Support Agent Bot
@@ -172,3 +173,11 @@ UI: http://localhost:8507
 This application similar as App 3, you can ask question regarding to App 6 loaded issues
 
 ![](.github/media/app7-ui.png)
+
+## App 8 Interactive with Confluence Space Pages
+UI: http://localhost:8508
+
+This application similar as App 3, you can ask question regarding to confluence space pages
+
+![](.github/media/app8-ui.png)
+

@@ -12,13 +12,13 @@ COPY requirements.txt .
 
 RUN pip install --upgrade -r requirements.txt
 
-COPY loader.py .
+COPY confluence_bot.py .
+COPY confluence_qa.py .
 COPY utils.py .
 COPY chains.py .
-COPY images ./images
 
-EXPOSE 8502
+EXPOSE 8508
 
-HEALTHCHECK CMD curl --fail http://localhost:8502/_stcore/health
+HEALTHCHECK CMD curl --fail http://localhost:8508/_stcore/health
 
-ENTRYPOINT ["streamlit", "run", "loader.py", "--server.port=8502", "--server.address=0.0.0.0"]
+ENTRYPOINT ["streamlit", "run", "confluence_bot.py", "--server.port=8508", "--server.address=0.0.0.0"]

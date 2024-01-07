@@ -14,3 +14,5 @@ uvicorn
 sse-starlette
 boto3
 atlassian-python-api
+lxml
+pytesseract
