@@ -1,8 +1,9 @@
 # @see https://github.com/devsentient/examples
 
-import streamlit as st
-from langchain.callbacks.base import BaseCallbackHandler
 import os
+from atlassian import Confluence 
+from langchain.callbacks.base import BaseCallbackHandler
+import streamlit as st
 from dotenv import load_dotenv
 
 # Import the ConfluenceQA class
@@ -37,12 +38,12 @@ st.set_page_config(
 
 
 @st.cache_resource
-def load_confluence(config):
+def load_confluence(config, force_reload:bool=False):
     # st.write("loading the confluence page")
     confluence_qa = ConfluenceQA(config=config)
     confluence_qa.init_embeddings()
     confluence_qa.init_models()
-    confluence_qa.vector_store_confluence_docs(force_reload=True)
+    confluence_qa.vector_store_confluence_docs(force_reload=force_reload)
     confluence_qa.retreival_qa_chain()
     return confluence_qa
 
@@ -81,33 +82,45 @@ def chat_input():
         with st.chat_message("assistant"):
             stream_handler = StreamHandler(st.empty())
             confluence_qa = st.session_state.get("confluence_qa")
-            if confluence_qa is not None:
-                qa_chain = confluence_qa.retreival_qa_chain()
-                result = qa_chain(
-                    {"question": user_input, "chat_history": []}, callbacks=[stream_handler]
-                )["answer"]
-                output = result
-                st.session_state[f"user_input"].append(user_input)
-                st.session_state[f"generated"].append(output)
-            else:
-                st.write("Please load Confluence Page content first by [Submit] your configs from left side.")
+            if confluence_qa is None:
+                st.warning("Answer questions based on the pre-ingested confluence page, You can refresh the knowledge graph by clicking [Ingest] in the config panel", icon="🚨")
+                confluence_qa = load_confluence(st.session_state["config"])
+                st.session_state["confluence_qa"] = confluence_qa
+            qa_chain = confluence_qa.retreival_qa_chain()
+            result = qa_chain(
+                {"question": user_input, "chat_history": []}, callbacks=[stream_handler]
+            )["answer"]
+            output = result
+            st.session_state[f"user_input"].append(user_input)
+            st.session_state[f"generated"].append(output)
+
+def list_space(url:str, username:str, password:str) ->[]:
+    confluence = Confluence(
+        url=url,
+        username=username,
+        password=password,
+        cloud=True)
+    result = confluence.get_all_spaces(start=0, limit=500, expand=None)
+    spaces = result["results"]
+    return list(map(lambda s: f"{s['name']} | ({s['key']})", spaces))
 
 with st.sidebar.form(key ='ConfigForm'):
-        st.markdown('## Add your configs')
+        st.markdown('## Confluence Config')
         confluence_url = st.text_input("paste the confluence URL", "https://toronto.atlassian.net/wiki")
         username = st.text_input(label="confluence username",
                                 help="leave blank if confluence page is public",
                                 type="password")
-        space_key = st.text_input(label="confluence space",
-                                help="Space of Confluence",
-                                value="DTSKS")
         api_key = st.text_input(label="confluence api key",
                                 help="leave blank if confluence page is public",
                                 type="password")
-        max_pages = st.text_input(label="maximum pages",
-                                value ="100",
-                                help="maximum number of pages loaded")
-        btSubmitted = st.form_submit_button(label='Submit')
+
+        spaces = list_space(url=confluence_url, username=username, password=api_key)
+        space = st.selectbox('Which space do you want to import', spaces)
+        space_key = space.split("|")[1].strip().strip("()")
+        overwrite = st.checkbox(label='Overwrite preloaded pages',
+                                help="Select this will overwrite all previous loaded pages")
+
+        btSubmitted = st.form_submit_button(label='Ingest')
 
         if btSubmitted and confluence_url and space_key:
             st.session_state["config"].update({
@@ -115,12 +128,20 @@ with st.sidebar.form(key ='ConfigForm'):
                 "username": username if username != "" else None,
                 "api_key": api_key if api_key != "" else None,
                 "space_key": space_key,
-                "max_pages": int(max_pages)
+                "overwrite":overwrite
             })
             with st.spinner(text="Ingesting Confluence..."):
-                confluence_qa = load_confluence(st.session_state["config"])
-                st.session_state["confluence_qa"] = confluence_qa
-            st.success("Confluence Space Ingested", icon="✅")
+                try:
+                    confluence_qa = load_confluence(st.session_state["config"], force_reload=True)
+                    st.session_state["confluence_qa"] = confluence_qa
+                    st.success("Confluence Space Ingested", icon="✅")
+                except Exception as error:
+                    print(error)
+                    if "ConstraintValidationFailed" in error["code"]:
+                        st.error(f"Pages already ingested, Please check the [Overwrite] option and run it again if you want to refresh the knowledge graph.", icon="🚨")
+                    else:
+                        st.error(f"{error.message}", icon="🚨")
+
 st.title("Confluence Q&A Demo")
 
 display_chat()

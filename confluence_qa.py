@@ -10,6 +10,7 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate,
 )
 from chains import load_embedding_model, load_llm
+from utils import BaseLogger
 
 class ConfluenceQA:
     def __init__(self,config:dict = {}):
@@ -18,6 +19,7 @@ class ConfluenceQA:
         self.dimension = None
         self.vectorstore = None
         self.qa_chain = None
+        self.logger = BaseLogger()
 
     def init_embeddings(self) -> None:
         self.embeddings,  self.dimension = load_embedding_model(embedding_model_name = self.config["embedding_model_name"], config = self.config)
@@ -33,7 +35,6 @@ class ConfluenceQA:
         username = self.config.get("username",None)
         api_key = self.config.get("api_key",None)
         space_key = self.config.get("space_key",None)
-        max_pages = self.config.get("max_pages", 100)
         if not force_reload:
             self.vectorstore = Neo4jVector.from_existing_index(
                         embedding=self.embeddings,
@@ -51,9 +52,9 @@ class ConfluenceQA:
             documents = loader.load(
                 space_key=space_key, 
                 include_attachments = False, # require pytesseract OCR
-                include_comments =True,
-                limit=max_pages)
+                include_comments =True)
 
+            self.logger.info(f"Loaded total {len(documents)} pages from Confluence Space [{space_key}]")
             self.vectorstore = Neo4jVector.from_documents(
                         embedding=self.embeddings,
                         documents=documents,
@@ -62,7 +63,7 @@ class ConfluenceQA:
                         password=self.config["db_password"],
                         index_name="confluence",
                         node_label="Page",
-                        pre_delete_collection=True,  # Delete existing data
+                        pre_delete_collection=self.config["overwrite"],  # Delete existing data
             )
 
     def retreival_qa_chain(self):
@@ -86,7 +87,7 @@ class ConfluenceQA:
             Confluence pages you found useful, which are described under Source value.
             You can only use links to Confluence pages that are present in the context and always
             add links to the end of the answer in the style of citations.
-            If you don't know the answer,  don't try to make up an link and include it.
+            If you don't know the answer, don't try to make up an link and include it.
             Generate concise answers with references sources section of links to 
             relevant Confluence questions only at the end of the answer.
             """
