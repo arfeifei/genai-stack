@@ -115,8 +115,11 @@ with st.sidebar.form(key ='ConfigForm'):
                                 type="password")
 
         spaces = list_space(url=confluence_url, username=username, password=api_key)
-        space = st.selectbox('Which space do you want to import', spaces)
-        space_key = space.split("|")[1].strip().strip("()")
+        space = st.selectbox('Which space do you want to import', spaces, index=None)
+        space_key = None
+        if space:
+            space_key = space.split("|")[1].strip().strip("()")
+
         wipeout = st.checkbox(label='Wipeout',
                                 help="Wipeout the whole database and clear out all previously loaded data!")
 
