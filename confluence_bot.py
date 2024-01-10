@@ -117,8 +117,8 @@ with st.sidebar.form(key ='ConfigForm'):
         spaces = list_space(url=confluence_url, username=username, password=api_key)
         space = st.selectbox('Which space do you want to import', spaces)
         space_key = space.split("|")[1].strip().strip("()")
-        overwrite = st.checkbox(label='Overwrite preloaded pages',
-                                help="Select this will overwrite all previous loaded pages")
+        wipeout = st.checkbox(label='Wipeout',
+                                help="Wipeout the whole database and clear out all previously loaded data!")
 
         btSubmitted = st.form_submit_button(label='Ingest')
 
@@ -128,19 +128,19 @@ with st.sidebar.form(key ='ConfigForm'):
                 "username": username if username != "" else None,
                 "api_key": api_key if api_key != "" else None,
                 "space_key": space_key,
-                "overwrite":overwrite
+                "overwrite":wipeout
             })
-            with st.spinner(text="Ingesting Confluence..."):
+            with st.spinner(text=f"Ingesting [{space_key}]..."):
                 try:
                     confluence_qa = load_confluence(st.session_state["config"], force_reload=True)
                     st.session_state["confluence_qa"] = confluence_qa
                     st.success("Confluence Space Ingested", icon="✅")
-                except Exception as error:
-                    print(error)
-                    if "ConstraintValidationFailed" in error["code"]:
-                        st.error(f"Pages already ingested, Please check the [Overwrite] option and run it again if you want to refresh the knowledge graph.", icon="🚨")
+                except BaseException as be:
+                    if "exist" in be.message:
+                        st.error(f"This Space [{space_key}] has already been ingested, You can check the [wipeout] option to delete the whole database and rebuild it again. !!! This could wipe out all the other ingested Spaces too!!!", icon="🚨")
                     else:
-                        st.error(f"{error.message}", icon="🚨")
+                        st.error(f"{be.message}", icon="🚨")
+                    pass
 
 st.title("Confluence Q&A Demo")
 
