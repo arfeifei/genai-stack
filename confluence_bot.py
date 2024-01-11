@@ -113,15 +113,18 @@ with st.sidebar.form(key ='ConfigForm'):
         api_key = st.text_input(label="confluence api key",
                                 help="leave blank if confluence page is public",
                                 type="password")
-
-        spaces = list_space(url=confluence_url, username=username, password=api_key)
-        space = st.selectbox('Which space do you want to import', spaces, index=None)
         space_key = None
-        if space:
-            space_key = space.split("|")[1].strip().strip("()")
+        try:
+            spaces = list_space(url=confluence_url, username=username, password=api_key)
+            if spaces:
+                space = st.selectbox('Which space do you want to import', spaces, index=None)
+                if space:
+                    space_key = space.split("|")[1].strip().strip("()")
+        except BaseException as e:
+            st.error(f"{e}", icon="🚨")
 
         wipeout = st.checkbox(label='Wipeout',
-                                help="Wipeout the whole database and clear out all previously loaded data!")
+                              help="Wipeout the whole database and clear out all previously loaded data!")
 
         btSubmitted = st.form_submit_button(label='Ingest')
 

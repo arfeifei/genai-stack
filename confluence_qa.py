@@ -78,8 +78,9 @@ class ConfluenceQA:
             general_system_template = """ 
             Use the following pieces of context to answer the question at the end.
             The context contains question-answer pairs and their links from Confluence.
-            When you find particular answer in the context useful, make sure to cite it in the answer using the link.
-            If you don't know the answer, just say that you don't know, don't try to make up an answer.
+            You can only use the information from the context to answer the question,
+            and you must cite the sources of your answer using the links. If you don't know the answer,
+            just say that you don't know, and don't make up an answer or a link.
             ----
             {summaries}
             ----
