@@ -84,11 +84,9 @@ class ConfluenceQA:
             ----
             {summaries}
             ----
-            Each answer you generate should contain a section at the end of links to 
-            Confluence pages you found useful, which are described under Source value.
+            Your answer should be concise and have a section at the end with the links to the pages that you used.
             You can only use links to Confluence pages that are present in the context and always
             add links to the end of the answer in the style of citations.
-            If you don't know the answer, don't try to make up an link and include it.
             Generate concise answers with references sources section of links to 
             relevant Confluence questions only at the end of the answer.
             """
