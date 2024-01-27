@@ -1,9 +1,8 @@
 import os
-import json
 import math
 from atlassian import Jira
 from dotenv import load_dotenv
-from langchain.graphs import Neo4jGraph
+from langchain_community.graphs import Neo4jGraph
 import streamlit as st
 from streamlit.logger import get_logger
 from chains import load_embedding_model
