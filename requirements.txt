@@ -13,8 +13,10 @@ pydantic
 uvicorn
 sse-starlette
 boto3
+# atlassian
 atlassian-python-api
 lxml
 pytesseract
+# missing from the langchain base image?
 langchain-openai
 langchain-community
