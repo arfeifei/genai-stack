@@ -4,6 +4,9 @@ wikipedia
 tiktoken
 neo4j
 streamlit
+# add speech to text
+streamlit_extras
+streamlit_mic_recorder
 sentence_transformers==2.2.2
 Pillow
 fastapi

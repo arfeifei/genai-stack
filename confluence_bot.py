@@ -4,6 +4,8 @@ import os
 from atlassian import Confluence 
 from langchain.callbacks.base import BaseCallbackHandler
 import streamlit as st
+from streamlit_extras.stylable_container import stylable_container
+from streamlit_mic_recorder import speech_to_text
 from dotenv import load_dotenv
 
 # Import the ConfluenceQA class
@@ -57,25 +59,36 @@ def display_chat():
         st.session_state["confluence_qa"] = None
 
     if "generated" not in st.session_state:
-        st.session_state[f"generated"] = []
+        st.session_state["generated"] = []
 
     if "user_input" not in st.session_state:
-        st.session_state[f"user_input"] = []
+        st.session_state["user_input"] = []
 
-    if st.session_state[f"generated"]:
-        size = len(st.session_state[f"generated"])
+    if st.session_state["generated"]:
+        size = len(st.session_state["generated"])
         # Display only the last three exchanges
         for i in range(max(size - 3, 0), size):
             with st.chat_message("user"):
-                st.write(st.session_state[f"user_input"][i])
+                st.write(st.session_state["user_input"][i])
 
             with st.chat_message("assistant"):
-                st.write(st.session_state[f"generated"][i])
+                st.write(st.session_state["generated"][i])
         with st.container():
             st.write("&nbsp;")
 
 def chat_input():
-    user_input = st.chat_input("What question can I help you resolve today?")
+    with stylable_container(
+        key="bottom_content",
+        css_styles="""
+            {
+                position: fixed;
+                bottom: 120px;
+            }
+            """,
+    ):
+        speech_text = speech_to_text(language='en', start_prompt="🎙️ Talk", stop_prompt="🎙️ Done", just_once=True, key='STT')
+    chat_input_text = st.chat_input("What question can I help you resolve today?")
+    user_input = chat_input_text if chat_input_text else speech_text
     if user_input:
         with st.chat_message("user"):
             st.write(user_input)
