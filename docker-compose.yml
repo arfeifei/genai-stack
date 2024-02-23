@@ -379,5 +379,47 @@ services:
     ports:
       - 8508:8508
 
+  url_bot:
+    build:
+      context: .
+      dockerfile: url_bot.Dockerfile
+    volumes:
+      - $PWD/cache:/~/.cache
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY-}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL-http://host.docker.internal:11434}
+      - LLM=${LLM-llama2}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL-sentence_transformer}
+      - LANGCHAIN_ENDPOINT=${LANGCHAIN_ENDPOINT-"https://api.smith.langchain.com"}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2-false}
+      - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - UB_LLM=${UB_LLM-mistral}
+      - UB_EMBEDDING_MODEL=${UB_EMBEDDING_MODEL-mistral}
+    networks:
+      - net
+    depends_on:
+      database:
+        condition: service_healthy
+      pull-model:
+        condition: service_completed_successfully
+    x-develop:
+      watch:
+        - action: rebuild
+          path: .
+          ignore:
+            - bot.py
+            - loader.py
+            - pdf_bot.py
+            - api.py
+            - front-end/
+            - jira_bot.py
+            - jira_loader.py
+    ports:
+      - 8509:8509
+
 networks:
   net:

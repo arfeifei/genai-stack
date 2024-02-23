@@ -22,5 +22,8 @@ lxml
 pytesseract
 # missing from the langchain base image?
 langchain-openai
-langchain-community
+langchain-community==0.0.19
 langchain-google-genai
+# url bot
+beautifulsoup4
+chromadb
